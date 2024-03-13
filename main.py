@@ -1,55 +1,83 @@
-from turtle import *
-from random import randrange
-from freegames import square, vector
+import pygame
+import random
 
-food = vector(0, 0)
-snake = [vector(10, 0)]
-aim = vector(0, -10)
 
-def change(x, y):
-    "Change snake direction."
-    aim.x = x
-    aim.y = y
+pygame.init()
 
-def inside(head):
-    "Return True if head inside boundaries."
-    return -200 < head.x < 190 and -200 < head.y < 190
 
-def move():
-    "Move snake forward one segment."
-    head = snake[-1].copy()
-    head.move(aim)
+WIDTH, HEIGHT = 600, 600
+CELL_SIZE = 20
+GRID_WIDTH, GRID_HEIGHT = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
 
-    if not inside(head) or head in snake:
-        square(head.x, head.y, 9, 'pink')
-        update()
-        return
 
-    snake.append(head)
+UP = (0, -1)
+DOWN = (0, 1)
+LEFT = (-1, 0)
+RIGHT = (1, 0)
 
-    if head == food:
-        print('Snake:', len(snake))
-        food.x = randrange(-15, 15) * 10
-        food.y = randrange(-15, 15) * 10
-    else:
-        snake.pop(0)
 
-    clear()
+def main():
 
-    for body in snake:
-        square(body.x, body.y, 9, 'green')
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption("Snake Game")
 
-    square(food.x, food.y, 9, 'red')
-    update()
-    ontimer(move, 100)
+    clock = pygame.time.Clock()
 
-setup(420, 420, 370, 0)
-hideturtle()
-tracer(False)
-listen()
-onkey(lambda: change(10, 0), 'Right')
-onkey(lambda: change(-10, 0), 'Left')
-onkey(lambda: change(0, 10), 'Up')
-onkey(lambda: change(0, -10), 'Down')
-move()
-done()
+
+    snake = [(GRID_WIDTH // 2, GRID_HEIGHT // 2)]
+    direction = random.choice([UP, DOWN, LEFT, RIGHT])
+
+    food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                return
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    direction = UP
+                elif event.key == pygame.K_DOWN:
+                    direction = DOWN
+                elif event.key == pygame.K_LEFT:
+                    direction = LEFT
+                elif event.key == pygame.K_RIGHT:
+                    direction = RIGHT
+
+        head = (snake[0][0] + direction[0], snake[0][1] + direction[1])
+        snake.insert(0, head)
+
+
+        if head == food:
+            food = (random.randint(0, GRID_WIDTH - 1), random.randint(0, GRID_HEIGHT - 1))
+        else:
+            snake.pop()
+
+
+        if (head[0] < 0 or head[0] >= GRID_WIDTH or
+            head[1] < 0 or head[1] >= GRID_HEIGHT or
+            head in snake[1:]):
+            pygame.quit()
+            return
+
+
+        screen.fill(WHITE)
+
+
+        for segment in snake:
+            pygame.draw.rect(screen, GREEN, (segment[0] * CELL_SIZE, segment[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+
+        pygame.draw.rect(screen, RED, (food[0] * CELL_SIZE, food[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE))
+
+        pygame.display.flip()
+
+
+        clock.tick(10)
+
+if __name__ == "__main__":
+    main()
