@@ -1,10 +1,6 @@
 import pygame
 import random
 
-
-
-
-
 WIDTH, HEIGHT = 600, 600
 CELL_SIZE = 20
 GRID_WIDTH, GRID_HEIGHT = WIDTH // CELL_SIZE, HEIGHT // CELL_SIZE
